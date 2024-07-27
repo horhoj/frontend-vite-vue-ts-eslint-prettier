@@ -1,43 +1,56 @@
-init: docker-up install prod
+docker-init: docker-up docker-install docker-prod
 
 #all
 docker-up: docker-down
-	docker-compose up -d --build
+	docker compose up -d --build
 
 docker-log: docker-down
-	docker-compose up --build
+	docker compose up --build
 
 docker-down:
-	docker-compose stop
-	docker-compose down
+	docker compose stop
+	docker compose down
 
-permission-755:
-	sudo chmod -R 755 ./src/
+docker-console:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "/bin/bash"
 
-permission-777:
-	sudo chmod -R 777 ./src/
+docker-dev:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run dev -- --host=0.0.0.0"
 
-console:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "/bin/bash"
+docker-ddev: docker-up docker-install docker-dev
 
-dev:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run dev -- --host=0.0.0.0"
+docker-prod:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run build"
 
-ddev: docker-up install dev
+docker-install:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm i"
 
+docker-lint-check:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run lint-check"
 
+docker-lint-fix:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run lint-fix"
 
-prod:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run build"
+docker-type-check:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run type-check"
 
-install:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm i"
+docker-test:
+	docker compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run test"
 
-lint:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run lint"
+check:
+	npm run type-check && npm run lint-check
 
-type-check:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run type-check"
+check-full:
+	npm run build && npm run type-check && npm run lint-check
 
 test:
-	docker-compose exec --user $(shell id -u):$(shell id -g)  node sh -c "npm run test"
+	npm run test
+
+dev:
+	npm run dev
+
+lint-fix:
+	npm run lint-fix
+
+test-coverage:
+	npm run test-coverage
