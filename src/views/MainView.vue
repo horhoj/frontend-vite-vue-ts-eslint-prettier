@@ -1,5 +1,10 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>main1</div>
+  <div class="app">App: VUE</div>
 </template>
+
+<style lang="css" scoped>
+.app {
+}
+</style>
